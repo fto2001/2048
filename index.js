@@ -16,13 +16,13 @@ function startGame() {
     // Creating an empty board with the size of rows x columns
     board = Array.from({ length: rows }, () => Array(columns).fill(0));
 
-    updateDisplay();
-    setRandomTile();
-    setRandomTile();
+    updateBoard();
+    setRandomTileToBoard();
+    setRandomTileToBoard();
 }
 
 // A function to update the display of the game on the page
-function updateDisplay() {
+function updateBoard() {
     const boardElement = document.getElementById("board");
     boardElement.innerHTML = "";
 
@@ -35,19 +35,22 @@ function updateDisplay() {
     }
 
     // Update score display
-    document.getElementById("score").innerText = "Score: " + score;
+    const scoreDisplay = document.getElementById('score');
+    scoreDisplay.innerText = "Score: " + score;
 }
 
 // A function to create a tile element with the corresponding numeric value
 function createTileElement(num) {
     const tile = document.createElement("div");
+
     tile.className = "tile x" + num;
     tile.textContent = num > 0 ? num : "";
+    
     return tile;
 }
 
 // A function to place a random tile on an empty space on the board
-function setRandomTile() {
+function setRandomTileToBoard() {
     const emptyTiles = [];
 
     // We find all the empty cells on the board
@@ -61,12 +64,11 @@ function setRandomTile() {
 
     if (emptyTiles.length === 0) return;
     
-    const randomIndex = Math.floor(Math.random() * emptyTiles.length);
-    const tile = emptyTiles[randomIndex];
+    const randomNumber = Math.floor(Math.random() * emptyTiles.length);
+    const tile = emptyTiles[randomNumber];
     board[tile.row][tile.column] = Math.random() < 0.9 ? 2 : 4;
-    updateDisplay();
+    updateBoard();
 }
-
 
 // Function for resetting the state of merged tiles
 function resetMergeState() {
@@ -85,9 +87,8 @@ function isTileMerged(row, column) {
 
 // Move tiles left
 function moveLeft() {
-    if (!canMove()) {
-        alert("Game over, you lost"); // Notification of loss
-        location.reload(); 
+    if (!isCanMove()) {
+        showGameOverAlert();  // Notification of loss
     }
 
     let moved = false;
@@ -95,22 +96,22 @@ function moveLeft() {
     for (let row = 0; row < rows; row++) {
         for (let column = 1; column < columns; column++) {
             if (board[row][column] !== 0) {
-                let prevC = column - 1;
+                let prevColumn = column - 1;
 
                 // We check the cells on the left and move the tile if possible
-                while (prevC >= 0) {
-                    if (board[row][prevC] === 0) {
-                        board[row][prevC] = board[row][column];
+                while (prevColumn >= 0) {
+                    if (board[row][prevColumn] === 0) {
+                        board[row][prevColumn] = board[row][column];
                         board[row][column] = 0;
-                        column = prevC; // We remain on this column for further unification
+                        column = prevColumn; // We remain on this column for further unification
                         moved = true;
-                    } else if (board[row][prevC] === board[row][column]) {
+                    } else if (board[row][prevColumn] === board[row][column]) {
                         // Combine two tiles if they have the same values
-                        if (!isTileMerged(row, prevC)) {
-                            board[row][prevC] *= 2;
+                        if (!isTileMerged(row, prevColumn)) {
+                            board[row][prevColumn] *= 2;
                             board[row][column] = 0;
-                            score += board[row][prevC];
-                            markTileAsMerged(row, prevC);
+                            score += board[row][prevColumn];
+                            markTileAsMerged(row, prevColumn);
                             moved = true;
                         }
                         break;
@@ -118,7 +119,7 @@ function moveLeft() {
                         break;
                     }
 
-                    prevC--;
+                    prevColumn--;
                 }
             }
         }
@@ -126,15 +127,14 @@ function moveLeft() {
 
     if (moved) {
         resetMergeState(); // Resetting the state of merged tiles
-        setRandomTile(); // Adding a new tile
-        updateDisplay(); // Update game display
+        setRandomTileToBoard(); // Adding a new tile
+        updateBoard(); // Update game display
     }
 }
 // Move tiles right
 function moveRight() {
-    if (!canMove()) {
-        alert("Game over, you lost"); // Notification of loss
-        location.reload(); 
+    if (!isCanMove()) {
+        showGameOverAlert();
     }
 
     let moved = false;
@@ -142,20 +142,20 @@ function moveRight() {
     for (let row = 0; row < rows; row++) {
         for (let column = columns - 2; column >= 0; column--) {
             if (board[row][column] !== 0) {
-                let nextC = column + 1;
+                let nextColumn = column + 1;
 
-                while (nextC < columns) {
-                    if (board[row][nextC] === 0) {
-                        board[row][nextC] = board[row][column];
+                while (nextColumn < columns) {
+                    if (board[row][nextColumn] === 0) {
+                        board[row][nextColumn] = board[row][column];
                         board[row][column] = 0;
-                        column = nextC;
+                        column = nextColumn;
                         moved = true;
-                    } else if (board[row][nextC] === board[row][column]) {
-                        if (!isTileMerged(row, nextC)) {
-                            board[row][nextC] *= 2;
+                    } else if (board[row][nextColumn] === board[row][column]) {
+                        if (!isTileMerged(row, nextColumn)) {
+                            board[row][nextColumn] *= 2;
                             board[row][column] = 0;
-                            score += board[row][nextC];
-                            markTileAsMerged(row, nextC);
+                            score += board[row][nextColumn];
+                            markTileAsMerged(row, nextColumn);
                             moved = true;
                         }
                         break;
@@ -163,7 +163,7 @@ function moveRight() {
                         break;
                     }
 
-                    nextC++;
+                    nextColumn++;
                 }
             }
         }
@@ -171,16 +171,15 @@ function moveRight() {
 
     if (moved) {
         resetMergeState();
-        setRandomTile();
-        updateDisplay();
+        setRandomTileToBoard();
+        updateBoard();
     }
 }
 
 // Move tiles down
 function moveDown() {
-    if (!canMove()) {
-        alert("Game over, you lost"); // Notification of loss
-        location.reload(); 
+    if (!isCanMove()) {
+        showGameOverAlert();
     }
 
     let moved = false;
@@ -188,20 +187,20 @@ function moveDown() {
     for (let column = 0; column < columns; column++) {
         for (let row = rows - 2; row >= 0; row--) {
             if (board[row][column] !== 0) {
-                let nextR = row + 1;
+                let nextRow = row + 1;
 
-                while (nextR < rows) {
-                    if (board[nextR][column] === 0) {
-                        board[nextR][column] = board[row][column];
+                while (nextRow < rows) {
+                    if (board[nextRow][column] === 0) {
+                        board[nextRow][column] = board[row][column];
                         board[row][column] = 0;
-                        row = nextR;
+                        row = nextRow;
                         moved = true;
-                    } else if (board[nextR][column] === board[row][column]) {
-                        if (!isTileMerged(nextR, column)) {
-                            board[nextR][column] *= 2;
+                    } else if (board[nextRow][column] === board[row][column]) {
+                        if (!isTileMerged(nextRow, column)) {
+                            board[nextRow][column] *= 2;
                             board[row][column] = 0;
-                            score += board[nextR][column];
-                            markTileAsMerged(nextR, column);
+                            score += board[nextRow][column];
+                            markTileAsMerged(nextRow, column);
                             moved = true;
                         }
                         break;
@@ -209,7 +208,7 @@ function moveDown() {
                         break;
                     }
 
-                    nextR++;
+                    nextRow++;
                 }
             }
         }
@@ -217,16 +216,15 @@ function moveDown() {
 
     if (moved) {
         resetMergeState();
-        setRandomTile();
-        updateDisplay();
+        setRandomTileToBoard();
+        updateBoard();
     }
 }
 
 // Move tiles up
 function moveUp() {
-    if (!canMove()) {
-        alert("Game over, you lost"); // Notification of loss
-        location.reload(); 
+    if (!isCanMove()) {
+        showGameOverAlert();
     }
 
     let moved = false;
@@ -234,20 +232,20 @@ function moveUp() {
     for (let column = 0; column < columns; column++) {
         for (let row = 1; row < rows; row++) {
             if (board[row][column] !== 0) {
-                let prevR = row - 1;
+                let prevRow = row - 1;
 
-                while (prevR >= 0) {
-                    if (board[prevR][column] === 0) {
-                        board[prevR][column] = board[row][column];
+                while (prevRow >= 0) {
+                    if (board[prevRow][column] === 0) {
+                        board[prevRow][column] = board[row][column];
                         board[row][column] = 0;
-                        row = prevR;
+                        row = prevRow;
                         moved = true;
-                    } else if (board[prevR][column] === board[row][column]) {
-                        if (!isTileMerged(prevR, column)) {
-                            board[prevR][column] *= 2;
+                    } else if (board[prevRow][column] === board[row][column]) {
+                        if (!isTileMerged(prevRow, column)) {
+                            board[prevRow][column] *= 2;
                             board[row][column] = 0;
-                            score += board[prevR][column];
-                            markTileAsMerged(prevR, column);
+                            score += board[prevRow][column];
+                            markTileAsMerged(prevRow, column);
                             moved = true;
                         }
                         break;
@@ -255,7 +253,7 @@ function moveUp() {
                         break;
                     }
 
-                    prevR--;
+                    prevRow--;
                 }
             }
         }
@@ -263,13 +261,13 @@ function moveUp() {
 
     if (moved) {
         resetMergeState();
-        setRandomTile();
-        updateDisplay();
+        setRandomTileToBoard();
+        updateBoard();
     }
 }
 
 // A function to check if at least one move is possible
-function canMove() {
+function isCanMove() {
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
             if (board[row][column] === 0) {
@@ -286,15 +284,22 @@ function canMove() {
     return false; // There is no way to make a move
 }
 
+function showGameOverAlert() {
+    alert("Game over, you lost");
+    location.reload();
+}
+
 // Adding a key event listener to handle game movement
-document.addEventListener('keyup', function(e) {
-    if (e.key === "ArrowUp") {
+document.addEventListener('keyup', (e) => {
+    const key = e.key;
+    
+    if (key === "ArrowUp") {
         moveUp();
-    } else if (e.key === "ArrowDown") {
+    } else if (key === "ArrowDown") {
         moveDown();
-    } else if (e.key === "ArrowLeft") {
+    } else if (key === "ArrowLeft") {
         moveLeft();
-    } else if (e.key === "ArrowRight") {
+    } else if (key === "ArrowRight") {
         moveRight();
     }
 });
