@@ -96,6 +96,7 @@ table {
 
     background-color: #bbada0;
     border-radius: 10px;
+    overscroll-behavior: none;
 }
 
 .tile {
