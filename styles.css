@@ -52,14 +52,43 @@ table {
 	border-spacing: 0;
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
+.container__button {
+    margin-right: 20px;
+
+    width: 180px;
+    height: 50px;
+
+    font-size: 30px;
+    color: #776e65;
+
+    background-color: #bbada0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.container__button:hover {
+    background-color: #776e65;
+    color: #bbada0;
+}
+
+.container-score {
+    width: 100%;
+    height: 100%;
+
+    border-radius: 10px;
+    background-color: #bbada0;
+}
+
+.score {
+    font-size: 50px;
+    text-align: center;
+    color: #776e65;
 }
 
 .board {
     padding: 10px;
-    margin-bottom: 20px;
+    margin: 20px 0;
 
     display: grid;
     grid-template-columns: repeat(4, 100px);
@@ -98,6 +127,13 @@ table {
 
 @media screen and (max-width: 768px) {
 
+    .container__button {
+        width: 120px;
+        height: 30px;
+    
+        font-size: 20px;
+    }
+
     .board {  
         display: grid;
         grid-template-columns: repeat(4, 50px);
@@ -107,5 +143,11 @@ table {
     .tile {
         width: 50px;
         height: 50px;
+    }
+
+    .score {
+        font-size: 30px;
+        text-align: center;
+        color: #776e65;
     }
 }
