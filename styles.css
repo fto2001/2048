@@ -37,6 +37,11 @@ body {
     font-family: Arial, sans-serif;
     overflow-y: hidden;
 }
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
 ol, ul {
 	list-style: none;
 }
