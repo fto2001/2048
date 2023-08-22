@@ -106,7 +106,6 @@ function isTileMerged(row, column) {
     return mergedTiles[row][column];
 }
 
-// Move tiles in a given direction
 function moveTiles(direction) {
     if (!isCanMove()) {
         showGameOverAlert();
@@ -115,40 +114,25 @@ function moveTiles(direction) {
 
     let isMoved = false;
 
-    for (let row = 0; row < rows; row++) {
-        for (let column = 0; column < columns; column++) {
+    for (let primary = 0; primary < rows; primary++) {
+        for (let secondary = 0; secondary < columns; secondary++) {
+            const row = direction === "up" ? primary : direction === "down" ? rows - 1 - primary : secondary;
+            const column = direction === "left" ? primary : direction === "right" ? columns - 1 - primary : secondary;
+
             if (board[row][column] !== 0) {
                 let newRow = row;
                 let newColumn = column;
 
                 while (true) {
-                    let nextRow, nextColumn;
-
-                    switch (direction) {
-                        case "left":
-                            nextRow = newRow;
-                            nextColumn = newColumn - 1;
-                            break;
-                        case "right":
-                            nextRow = newRow;
-                            nextColumn = newColumn + 1;
-                            break;
-                        case "up":
-                            nextRow = newRow - 1;
-                            nextColumn = newColumn;
-                            break;
-                        case "down":
-                            nextRow = newRow + 1;
-                            nextColumn = newColumn;
-                            break;
-                    }
+                    let nextRow = newRow + (direction === "down" ? 1 : direction === "up" ? -1 : 0);
+                    let nextColumn = newColumn + (direction === "right" ? 1 : direction === "left" ? -1 : 0);
 
                     if (nextRow < 0 || nextRow >= rows || nextColumn < 0 || nextColumn >= columns) {
-                        break; // Reached the edge of the board
+                        break; // The edge of the board has been reached
                     }
 
                     if (board[nextRow][nextColumn] === 0) {
-                        // Move the tile to the empty cell
+                        // Move the tile to an empty cell
                         board[nextRow][nextColumn] = board[newRow][newColumn];
                         board[newRow][newColumn] = 0;
                         newRow = nextRow;
@@ -165,7 +149,7 @@ function moveTiles(direction) {
                         }
                         break;
                     } else {
-                        break; // Cannot move or merge further
+                        break; //  Unable to move or merge further
                     }
                 }
             }
@@ -274,7 +258,7 @@ function resetGame() {
     localStorage.removeItem('gameState');
     board = Array.from({ length: rows }, () => Array(columns).fill(0));
     score = 0;
-    mergedTiles = Array.from({ length: rows }, () => Array(columns).fill(false)); // Додайте цей рядок
+    mergedTiles = Array.from({ length: rows }, () => Array(columns).fill(false)); 
     updateBoard();
     setRandomTileToBoard();
     setRandomTileToBoard();
