@@ -5,6 +5,7 @@ const columns = 4;
 // Variables to store game state and score
 let board;
 let score = 0;
+let startX, startY, endX, endY;
 
 // Initializing the game when the page is loaded
 window.onload = function() {
@@ -271,12 +272,15 @@ function isCanMove() {
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
             if (board[row][column] === 0) {
+
                 return true; // There is an empty cell
             }
             if (column > 0 && board[row][column] === board[row][column - 1]) {
+
                 return true; // It is possible to connect to the left
             }
             if (row > 0 && board[row][column] === board[row - 1][column]) {
+                
                 return true; // It is possible to connect upwards
             }
         }
@@ -303,3 +307,42 @@ document.addEventListener('keyup', (e) => {
         moveRight();
     }
 });
+
+// Adding touch event listeners
+document.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchmove', (e) => {
+    e.preventDefault(); // Prevent scrolling while swiping
+});
+
+document.addEventListener('touchend', (e) => {
+    endX = e.changedTouches[0].clientX;
+    endY = e.changedTouches[0].clientY;
+
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    
+    // Determine the direction of the swipe
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal swipe
+        if (deltaX > 0) {
+            moveRight();
+        } else {
+            moveLeft();
+        }
+    } else {
+        // Vertical swipe
+        if (deltaY > 0) {
+            moveDown();
+        } else {
+            moveUp();
+        }
+    }
+}
