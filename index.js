@@ -7,9 +7,29 @@ let board;
 let score = 0;
 let swipeStartX, swipeStartY, swipeEndX, swipeEndY;
 
-// Initializing the game when the page is loaded
+// Initialize the game
 window.onload = function() {
-    startGame();
+    loadGameState();
+    updateBoard();
+    setRandomTileToBoard();
+    setRandomTileToBoard();
+}
+
+// Function to save game state to local storage
+function saveGameState() {
+    localStorage.setItem('gameState', JSON.stringify({ board, score, mergedTiles }));
+}
+
+// Function to load game state from local storage
+function loadGameState() {
+    const savedState = localStorage.getItem('gameState');
+    if (savedState) {
+        const { board: savedBoard, score: savedScore, mergedTiles: savedMergedTiles } = JSON.parse(savedState);
+        board = savedBoard;
+        score = savedScore;
+        mergedTiles = savedMergedTiles;
+        updateBoard();
+    }
 }
 
 // Function for setting up the game
@@ -90,9 +110,10 @@ function isTileMerged(row, column) {
 function moveTiles(direction) {
     if (!isCanMove()) {
         showGameOverAlert();
+        return;
     }
 
-    let moved = false;
+    let isMoved = false;
 
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
@@ -132,7 +153,7 @@ function moveTiles(direction) {
                         board[newRow][newColumn] = 0;
                         newRow = nextRow;
                         newColumn = nextColumn;
-                        moved = true;
+                        isMoved = true;
                     } else if (board[nextRow][nextColumn] === board[newRow][newColumn]) {
                         // Merge tiles if they have the same value
                         if (!isTileMerged(nextRow, nextColumn) && !isTileMerged(newRow, newColumn)) {
@@ -140,7 +161,7 @@ function moveTiles(direction) {
                             score += board[nextRow][nextColumn];
                             board[newRow][newColumn] = 0;
                             markTileAsMerged(nextRow, nextColumn);
-                            moved = true;
+                            isMoved = true;
                         }
                         break;
                     } else {
@@ -151,7 +172,8 @@ function moveTiles(direction) {
         }
     }
 
-    if (moved) {
+    if (isMoved) {
+        saveGameState();
         resetMergeState();
         setRandomTileToBoard();
         updateBoard();
@@ -183,19 +205,17 @@ function isCanMove() {
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
             if (board[row][column] === 0) {
-
                 return true; // There is an empty cell
             }
             if (column > 0 && board[row][column] === board[row][column - 1]) {
-
                 return true; // It is possible to connect to the left
             }
             if (row > 0 && board[row][column] === board[row - 1][column]) {
-                
                 return true; // It is possible to connect upwards
             }
         }
     }
+    
     return false; // There is no way to make a move
 }
 
@@ -207,15 +227,9 @@ function showGameOverAlert() {
 // Adding a key event listener to handle game movement
 document.addEventListener('keyup', (e) => {
     const key = e.key;
-    
-    if (key === "ArrowUp") {
-        moveUp();
-    } else if (key === "ArrowDown") {
-        moveDown();
-    } else if (key === "ArrowLeft") {
-        moveLeft();
-    } else if (key === "ArrowRight") {
-        moveRight();
+    if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+        moveTiles(key.substring(5).toLowerCase());
+        saveGameState();
     }
 });
 
@@ -225,14 +239,11 @@ document.addEventListener('touchstart', (e) => {
     startY = e.touches[0].clientY;
 });
 
-document.addEventListener('touchmove', (e) => {
-    e.preventDefault(); // Prevent scrolling while swiping
-});
-
 document.addEventListener('touchend', (e) => {
     endX = e.changedTouches[0].clientX;
     endY = e.changedTouches[0].clientY;
 
+    saveGameState();
     handleSwipe();
 });
 
@@ -256,4 +267,31 @@ function handleSwipe() {
             moveUp();
         }
     }
+}
+
+// Function to reset the game state
+function resetGame() {
+    localStorage.removeItem('gameState');
+    board = Array.from({ length: rows }, () => Array(columns).fill(0));
+    score = 0;
+    mergedTiles = Array.from({ length: rows }, () => Array(columns).fill(false)); // Додайте цей рядок
+    updateBoard();
+    setRandomTileToBoard();
+    setRandomTileToBoard();
+}
+
+
+// Show a prompt to ask the user if they want to restore their progress
+function askToRestoreProgress() {
+    const restore = confirm('Do you want to restore your progress?');
+    if (restore) {
+        loadGameState();
+    } else {
+        resetGame();
+    }
+}
+
+// Initialize the game and prompt the user after page reload
+window.onload = function() {
+    askToRestoreProgress();
 }
