@@ -24,7 +24,7 @@ footer, header, hgroup, menu, nav, section {
 	display: block;
 }
 body {
-    line-height: 1;
+	line-height: 1;
     margin: 0;
 
     display: flex;
@@ -35,7 +35,6 @@ body {
 
     background-color: #f2b179;
     font-family: Arial, sans-serif;
-    overflow-y: hidden;
 }
 body::-webkit-scrollbar {
     display: none;
@@ -100,6 +99,14 @@ table {
     color: #776e65;
 }
 
+.tab-score {
+    color: white;
+}
+
+.best-score {
+    color: white;
+}
+
 .board {
     position: relative;
     padding: 10px;
@@ -124,22 +131,20 @@ table {
 
     font-size: 24px;
     font-weight: bold;
-    color: #776e65;
+    color: white;
     border-radius: 5px;
     background-color: #cdc1b5;
 }
 
-.x2 { background-color: #eee4da; }
-.x4 { background-color: #ede0c8; }
-.x8 { background-color: #f2b179; }
-.x16 { background-color: #f59563; }
-.x32 { background-color: #f67c5f; }
-.x64 { background-color: #f65e3b; }
-.x128 { background-color: #edcf72; }
-.x256 { background-color: #edcc61; }
-.x512 { background-color: #edc850; }
-.x1024 { background-color: #edc53f; }
-.x2048 { background-color: #edc22e; }
+.container-best-score {
+    margin-top: 10px;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 10px;
+    background-color: #bbada0;
+}
 
 @media screen and (max-width: 768px) {
 
@@ -171,8 +176,9 @@ table {
     }
 
     .container-title__button {      
-        width: 80px;
+        width: 60px;
         height: 40px;
+
+        font-size: 20px;
     }
-    
 }
