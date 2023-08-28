@@ -73,7 +73,6 @@ function createTileElement(num) {
 
     tile.className = "tile x" + num;
     tile.textContent = num > 0 ? num : "";
-
     tile.style.backgroundColor = generateTileColor(num);
     
     return tile;
