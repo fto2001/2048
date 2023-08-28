@@ -1,13 +1,11 @@
-// Constants for the number of rows and columns in the game
 const rows = 4;
 const columns = 4;
 
-// Variables to store game state and score
 let board;
 let score = 0;
+let bestScore = 0;
 let swipeStartX, swipeStartY, swipeEndX, swipeEndY;
 
-// Initialize the game
 window.onload = function() {
     loadGameState();
     updateBoard();
@@ -15,26 +13,24 @@ window.onload = function() {
     setRandomTileToBoard();
 }
 
-// Function to save game state to local storage
 function saveGameState() {
-    localStorage.setItem('gameState', JSON.stringify({ board, score, mergedTiles }));
+    localStorage.setItem('gameState', JSON.stringify({ board, score, mergedTiles, bestScore }));
 }
 
-// Function to load game state from local storage
 function loadGameState() {
     const savedState = localStorage.getItem('gameState');
+
     if (savedState) {
-        const { board: savedBoard, score: savedScore, mergedTiles: savedMergedTiles } = JSON.parse(savedState);
+        const { board: savedBoard, score: savedScore, mergedTiles: savedMergedTiles, bestScore: savedBestScore } = JSON.parse(savedState);
         board = savedBoard;
         score = savedScore;
         mergedTiles = savedMergedTiles;
+        bestScore = savedBestScore;
         updateBoard();
     }
 }
 
-// Function for setting up the game
 function startGame() {
-    // Creating an empty board with the size of rows x columns
     board = Array.from({ length: rows }, () => Array(columns).fill(0));
 
     updateBoard();
@@ -42,43 +38,54 @@ function startGame() {
     setRandomTileToBoard();
 }
 
-// A function to update the display of the game on the page
 function updateBoard() {
     const boardElement = document.getElementById("board");
     boardElement.innerHTML = "";
 
-    // We walk through each cell of the board and create the corresponding element of the tile
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
-            const tile = createTileElement(board[row][column]);
+            const tileValue = board[row][column];
+            const tile = createTileElement(tileValue);
             boardElement.appendChild(tile);
         }
     }
 
-    // Update score display
-    const scoreDisplay = document.getElementById('score');
-    scoreDisplay.innerText = "Score: " + score;
+    const scoreDisplay = document.getElementsByClassName('tab-score')[0];
+    scoreDisplay.innerText = score;
+
+    const bestScoreDisplay = document.getElementsByClassName('best-score')[0];
+    bestScoreDisplay.innerText = bestScore;
 }
 
-// A function to create a tile element with the corresponding numeric value
+function generateTileColor(value) {
+    const hueStart = 0; 
+    const hueEnd = 120;  
+    const hueStep = (hueEnd - hueStart) / 11;
+    const hue = (Math.log2(value) % 12) * hueStep + hueStart;
+    const saturation = 50;  
+    const lightness = 50; 
+
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
 function createTileElement(num) {
     const tile = document.createElement("div");
 
     tile.className = "tile x" + num;
     tile.textContent = num > 0 ? num : "";
+
+    tile.style.backgroundColor = generateTileColor(num);
     
     return tile;
 }
 
-// A function to place a random tile on an empty space on the board
 function setRandomTileToBoard() {
     const emptyTiles = [];
 
-    // We find all the empty cells on the board
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
             if (board[row][column] === 0) {
-                emptyTiles.push({ row: row, column: column }); // Add the coordinates of the empty cell to the array
+                emptyTiles.push({ row: row, column: column });
             }
         }
     }
@@ -91,17 +98,14 @@ function setRandomTileToBoard() {
     updateBoard();
 }
 
-// Function for resetting the state of merged tiles
 function resetMergeState() {
     mergedTiles = Array.from({ length: rows }, () => Array(columns).fill(false));
 }
 
-// Function to mark tiles as merged
 function markTileAsMerged(row, column) {
     mergedTiles[row][column] = true;
 }
 
-// A function to check if a tile has been merged
 function isTileMerged(row, column) {
     return mergedTiles[row][column];
 }
@@ -143,6 +147,9 @@ function moveTiles(direction) {
                         if (!isTileMerged(nextRow, nextColumn) && !isTileMerged(newRow, newColumn)) {
                             board[nextRow][nextColumn] *= 2;
                             score += board[nextRow][nextColumn];
+                            if (score > bestScore) {
+                                bestScore = score; // Update bestScore only if score surpasses it
+                            }
                             board[newRow][newColumn] = 0;
                             markTileAsMerged(nextRow, nextColumn);
                             isMoved = true;
@@ -164,43 +171,42 @@ function moveTiles(direction) {
     }
 }
 
-//  Move tiles left
 function moveLeft() {
     moveTiles("left");
 }
 
-// Move tiles right
 function moveRight() {
     moveTiles("right");
 }
 
-// Move tiles up
 function moveUp() {
     moveTiles("up");
 }
 
-// Move tiles down
 function moveDown() {
     moveTiles("down");
 }
 
-// A function to check if at least one move is possible
 function isCanMove() {
     for (let row = 0; row < rows; row++) {
         for (let column = 0; column < columns; column++) {
             if (board[row][column] === 0) {
-                return true; // There is an empty cell
+                return true; 
             }
-            if (column > 0 && board[row][column] === board[row][column - 1]) {
-                return true; // It is possible to connect to the left
+            
+            if (column > 0 
+                && board[row][column] === board[row][column - 1]) {
+                return true;
             }
-            if (row > 0 && board[row][column] === board[row - 1][column]) {
-                return true; // It is possible to connect upwards
+
+            if (row > 0 
+                && board[row][column] === board[row - 1][column]) {
+                return true;
             }
         }
     }
     
-    return false; // There is no way to make a move
+    return false;
 }
 
 function showGameOverAlert() {
@@ -208,43 +214,41 @@ function showGameOverAlert() {
     location.reload();
 }
 
-// Adding a key event listener to handle game movement
 document.addEventListener('keyup', (e) => {
     const key = e.key;
-    if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+    if (key === 'ArrowUp' 
+        || key === 'ArrowDown' 
+        || key === 'ArrowLeft' 
+        || key === 'ArrowRight') {
         moveTiles(key.substring(5).toLowerCase());
         saveGameState();
     }
 });
 
-// Adding touch event listeners
 document.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
 });
 
 document.addEventListener('touchend', (e) => {
-    endX = e.changedTouches[0].clientX;
-    endY = e.changedTouches[0].clientY;
+    swipeEndX = e.changedTouches[0].clientX;
+    swipeEndY = e.changedTouches[0].clientY;
 
     saveGameState();
     handleSwipe();
 });
 
 function handleSwipe() {
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-    
-    // Determine the direction of the swipe
+    const deltaX = swipeEndX - swipeStartX;
+    const deltaY = swipeEndY - swipeStartY;
+
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Horizontal swipe
         if (deltaX > 0) {
             moveRight();
         } else {
             moveLeft();
         }
     } else {
-        // Vertical swipe
         if (deltaY > 0) {
             moveDown();
         } else {
@@ -253,21 +257,20 @@ function handleSwipe() {
     }
 }
 
-// Function to reset the game state
 function resetGame() {
     localStorage.removeItem('gameState');
     board = Array.from({ length: rows }, () => Array(columns).fill(0));
     score = 0;
     mergedTiles = Array.from({ length: rows }, () => Array(columns).fill(false)); 
+
     updateBoard();
     setRandomTileToBoard();
     setRandomTileToBoard();
 }
 
-
-// Show a prompt to ask the user if they want to restore their progress
 function askToRestoreProgress() {
     const restore = confirm('Do you want to restore your progress?');
+    
     if (restore) {
         loadGameState();
     } else {
@@ -275,7 +278,6 @@ function askToRestoreProgress() {
     }
 }
 
-// Initialize the game and prompt the user after page reload
 window.onload = function() {
     askToRestoreProgress();
 }
