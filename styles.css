@@ -146,6 +146,39 @@ table {
     background-color: #bbada0;
 }
 
+@media screen and (min-width: 2000px) and (max-width:2560px) {
+
+    .container-title__name {
+        font-size: 100px;
+        color: #776e65;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(4, 150px);
+        gap: 10px;
+    }
+    
+    .tile {   
+        width: 150px;
+        height: 150px;
+
+        font-size: 34px;
+    }
+
+    .container-title__button {
+        width: 150px;
+        height: 100px;
+
+        font-size: 60px;
+    }
+
+    .score {
+        font-size: 80px;
+    }
+
+}
+
 @media screen and (max-width: 768px) {
 
     .container__button {
