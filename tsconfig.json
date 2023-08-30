@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "target": "ES6", 
+      "module": "system",
+      "outDir": "./dist",
+      "rootDir": "./src", //
+      "strict": true
+    }
+  }

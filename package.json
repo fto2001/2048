@@ -1,0 +1,19 @@
+{
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.197"
+  },
+  "name": "321321",
+  "version": "1.0.0",
+  "main": "script.js",
+  "scripts": {
+    "script": "./node_modules/.bin/tsc --project ./tsconfig.json --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
